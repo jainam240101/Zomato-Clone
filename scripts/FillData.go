@@ -8,6 +8,7 @@ import (
 	"github.com/bxcodec/faker/v3"
 	"github.com/google/uuid"
 	"github.com/jainam240101/zomato-clone/scripts/schemas"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -85,8 +86,10 @@ func GenerateDrivers(DB *gorm.DB) {
 }
 
 func main() {
+	godotenv.Load("../.env")
+	dbUrl := fmt.Sprintf("user=%v password=%v dbname=%v port=5432 sslmode=disable TimeZone=Asia/Shanghai", os.Getenv("POSTGRES_USERNAME"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("DB_NAME"))
 	DB, err := gorm.Open(postgres.New(postgres.Config{
-		DSN:                  "user=postgres password=Jainam dbname=zomato-clone port=5432 sslmode=disable TimeZone=Asia/Shanghai",
+		DSN:                  dbUrl,
 		PreferSimpleProtocol: true, // disables implicit prepared statement usage
 	}), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
