@@ -1,0 +1,43 @@
+syntax="proto3";
+
+option go_package="protos/OrderProtos";
+
+service OrderService{
+    rpc CreateOrder(OrderDetails) returns (OrderResponse) {};
+    rpc FindOrder(OrderID) returns (OrderResponse);
+}
+
+message OrderID{
+    string orderId=1;
+}
+
+message Order{
+    string DishName=1;
+    int32 Quantity=2;
+    float Price=3;
+    string DishId=4;
+}
+
+enum PaymentMethod{
+    CARD=0;
+    UPI=1;
+    COD=2;
+}
+
+message OrderDetails{
+    string userId=1;
+    repeated Order order=2;
+    string restaurantId=3;
+    float payableAmount=4;
+    PaymentMethod paymentMethod=5;
+}
+
+message OrderResponse{
+    string OrderId=1;   
+    string paymentMethod=2;
+    string userId=3;
+    string orderStatus=4;
+    string restaurantId=5;
+    float  payableAmount=6;
+    repeated Order  order=7;
+}
