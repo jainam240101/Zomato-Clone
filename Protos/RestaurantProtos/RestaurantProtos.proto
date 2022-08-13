@@ -1,0 +1,12 @@
+syntax="proto3";
+
+import "Protos/OrderProtos/OrderProto.proto";
+
+option go_package="protos/RestaurantProtos";
+
+
+
+service RestaurantService{
+    rpc AcceptOrder(OrderResponse) returns (OrderResponse);
+}
+

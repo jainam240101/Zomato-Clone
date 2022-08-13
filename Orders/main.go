@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/jainam240101/zomato-clone/Orders/db"
 	"github.com/jainam240101/zomato-clone/Orders/handlers"
-	protos "github.com/jainam240101/zomato-clone/Protos/OrderProtos"
+	orderProtos "github.com/jainam240101/zomato-clone/Protos/OrderProtos"
+	restaurantProtos "github.com/jainam240101/zomato-clone/Protos/RestaurantProtos"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 )
@@ -23,12 +24,32 @@ func main() {
 		log.Error("Error %v", err)
 		return
 	}
+
+	restoConn, err := CreateRestaurantConnection(log)
+	if err != nil {
+		log.Error("Error %v", err)
+		return
+	}
+
 	fmt.Println("Server is listening on ", address)
 	s := grpc.NewServer()
 	server := &handlers.Server{
-		Log: log,
-		DB:  db.OrderDB,
+		Log:    log,
+		Restro: *restoConn,
+		DB:     db.OrderDB,
 	}
-	protos.RegisterOrderServiceServer(s, server)
+	orderProtos.RegisterOrderServiceServer(s, server)
 	s.Serve(lis)
+}
+
+func CreateRestaurantConnection(log hclog.Logger) (*restaurantProtos.RestaurantServiceClient, error) {
+	opts := grpc.WithInsecure()
+	cc, err := grpc.Dial("localhost:8081", opts)
+	if err != nil {
+		log.Error("Error ", err)
+		return nil, err
+	}
+	// defer cc.Close()
+	client := restaurantProtos.NewRestaurantServiceClient(cc)
+	return &client, nil
 }

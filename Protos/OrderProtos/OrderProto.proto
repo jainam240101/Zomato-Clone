@@ -7,6 +7,8 @@ service OrderService{
     rpc FindOrder(OrderID) returns (OrderResponse);
 }
 
+message EmptyHash{}
+
 message OrderID{
     string orderId=1;
 }

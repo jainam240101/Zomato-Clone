@@ -6,19 +6,21 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/jainam240101/zomato-clone/Orders/schemas"
 	protos "github.com/jainam240101/zomato-clone/Protos/OrderProtos"
+	restaurantProtos "github.com/jainam240101/zomato-clone/Protos/RestaurantProtos"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Server struct {
-	Log hclog.Logger
-	DB  *mongo.Collection
+	Log    hclog.Logger
+	DB     *mongo.Collection
+	Restro restaurantProtos.RestaurantServiceClient
 	protos.UnimplementedOrderServiceServer
 }
 
-func NewServer(log hclog.Logger, DB *mongo.Collection) *Server {
-	return &Server{Log: log, DB: DB}
+func NewServer(log hclog.Logger, DB *mongo.Collection, restro restaurantProtos.RestaurantServiceClient) *Server {
+	return &Server{Log: log, DB: DB, Restro: restro}
 }
 
 func (s *Server) CreateOrder(ctx context.Context, request *protos.OrderDetails) (*protos.OrderResponse, error) {
@@ -39,7 +41,6 @@ func (s *Server) CreateOrder(ctx context.Context, request *protos.OrderDetails) 
 		s.Log.Error("Some Error occured ", err)
 		return nil, err
 	}
-	s.Log.Info("ORDER ID ", val.InsertedID)
 
 	orderResponse := &protos.OrderResponse{
 		OrderId:       val.InsertedID.(primitive.ObjectID).String(),
@@ -50,7 +51,24 @@ func (s *Server) CreateOrder(ctx context.Context, request *protos.OrderDetails) 
 		PayableAmount: request.PayableAmount,
 		Order:         request.Order,
 	}
-	return orderResponse, nil
+
+	s.Log.Info("Sending Orders to restro")
+
+	data, err := s.Restro.AcceptOrder(context.Background(), orderResponse)
+	if err != nil {
+		s.Log.Error("Some Error Occured", err)
+		return nil, err
+	}
+
+	filter := bson.D{{"_id", OrderDetails.ID}}
+	update := bson.D{{"$set", bson.D{{"orderStatus", "Accepted"}}}}
+	mongoData, err := s.DB.UpdateOne(context.TODO(), filter, update)
+	s.Log.Info("Data ", mongoData)
+	if err != nil {
+		s.Log.Error("Error ", err)
+	}
+
+	return data, nil
 }
 
 func (s *Server) FindOrder(ctx context.Context, request *protos.OrderID) (*protos.OrderResponse, error) {
