@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/bxcodec/faker/v3 v3.8.0
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/go-hclog v1.2.1
 	github.com/jinzhu/now v1.1.5 // indirect
