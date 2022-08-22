@@ -1,26 +1,32 @@
 package main
 
 import (
-	"net"
+	"fmt"
+	"log"
+	"net/http"
 
-	"github.com/hashicorp/go-hclog"
 	handlers "github.com/jainam240101/zomato-clone/Driver/Handlers"
-	protos "github.com/jainam240101/zomato-clone/Protos/DriverProtos"
-	"google.golang.org/grpc"
 )
 
+func NewHandler() *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/tracking", handlers.Tracking)
+	mux.HandleFunc("/search", handlers.Search)
+	return mux
+}
+
 func main() {
-	log := hclog.Default()
-	address := "0.0.0.0:8083"
-	lis, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Error("Error %v", err)
-		return
+	handlers.NewHandlers()
+	server := http.Server{
+		Addr:    fmt.Sprint(":8000"),
+		Handler: NewHandler(),
+	}
+	// Run server
+	log.Printf("Starting HTTP Server. Listening at %q", server.Addr)
+	if err := server.ListenAndServe(); err != nil {
+		log.Printf("%v", err)
+	} else {
+		log.Println("Server closed ! ")
 	}
 
-	log.Info("Server is listening on ", address)
-	s := grpc.NewServer()
-	server := handlers.NewServer(log)
-	protos.RegisterDriverServiceServer(s, server)
-	s.Serve(lis)
 }
