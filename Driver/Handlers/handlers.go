@@ -1,58 +1,42 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
 
+	"github.com/hashicorp/go-hclog"
 	redisModule "github.com/jainam240101/zomato-clone/Driver/Redis"
+	protos "github.com/jainam240101/zomato-clone/Protos/DriverProtos"
 )
 
-var redis *redisModule.RedisClient
-
-func NewHandlers() {
-	redis = redisModule.ConnectRedis()
+type Server struct {
+	Log   hclog.Logger
+	redis *redisModule.RedisClient
+	protos.UnimplementedDriverServiceServer
 }
 
-func Search(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Search")
-	body := struct {
-		Lat   float64 `json:"lat"`
-		Lng   float64 `json:"lng"`
-		Limit int     `json:"limit"`
-	}{}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		log.Printf("could not decode request: %v", err)
-		http.Error(w, "could not decode request", http.StatusInternalServerError)
-		return
+func NewServer(log hclog.Logger) *Server {
+	redis := redisModule.ConnectRedis()
+	return &Server{
+		redis: redis,
+		Log:   log,
 	}
-	drivers := redis.SearchDrivers(body.Limit, body.Lat, body.Lng, 100)
+}
+
+func (s *Server) SearchForDrivers(ctx context.Context, request *protos.DriverSearch) (*protos.SearchResponse, error) {
+	s.Log.Info("Search Function")
+	drivers := s.redis.SearchDrivers(int(request.Limit), float64(request.Latitude), float64(request.Longitude), 100)
 	data, err := json.Marshal(drivers)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	return &protos.SearchResponse{
+		DriverLocations: data,
+	}, nil
 }
 
-func Tracking(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Tracking")
-	// crate an anonymous struct for driver data.
-	var driver = struct {
-		ID  string  `json:"id"`
-		Lat float64 `json:"lat"`
-		Lng float64 `json:"lng"`
-	}{}
-	if err := json.NewDecoder(r.Body).Decode(&driver); err != nil {
-		log.Printf("could not decode request: %v", err)
-		http.Error(w, "could not decode request", http.StatusInternalServerError)
-		return
-	}
-	// Add new location
-	// You can save locations in another db
-	redis.AddDriverLocation(driver.Lng, driver.Lat, driver.ID)
-	w.WriteHeader(http.StatusOK)
+func (s *Server) AddDriverLocation(ctx context.Context, request *protos.DriverDetails) (*protos.DriverResponse, error) {
+	s.Log.Info("Tracking")
+	s.redis.AddDriverLocation(float64(request.Longitude), float64(request.Latitude), request.DriverId)
+	return &protos.DriverResponse{}, nil
 }
