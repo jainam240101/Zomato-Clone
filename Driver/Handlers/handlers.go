@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/hashicorp/go-hclog"
 	redisModule "github.com/jainam240101/zomato-clone/Driver/Redis"
@@ -25,11 +24,7 @@ func NewServer(log hclog.Logger) *Server {
 
 func (s *Server) SearchForDrivers(ctx context.Context, request *protos.DriverSearch) (*protos.SearchResponse, error) {
 	s.Log.Info("Search Function")
-	drivers := s.redis.SearchDrivers(int(request.Limit), float64(request.Latitude), float64(request.Longitude), 100)
-	data, err := json.Marshal(drivers)
-	if err != nil {
-		return nil, err
-	}
+	data, _ := s.redis.SearchDrivers(int(request.Limit), float64(request.Latitude), float64(request.Longitude), 10, request.OrderId)
 	return &protos.SearchResponse{
 		DriverLocations: data,
 	}, nil

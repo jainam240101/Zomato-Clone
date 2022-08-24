@@ -4,7 +4,6 @@ option go_package="protos/DriverProtos";
 
 service DriverService{
     rpc AddDriverLocation(DriverDetails) returns (DriverResponse); 
-    rpc UpdateDriverLocation(DriverDetails) returns (DriverResponse);
     rpc SearchForDrivers(DriverSearch) returns (SearchResponse);
 }
 
@@ -23,6 +22,7 @@ message DriverSearch{
     float latitude =1;
     float longitude=2;
     int64 limit=3;
+    string orderId=4;
 }
 
 message SearchResponse{

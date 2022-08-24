@@ -5,12 +5,15 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	handlers "github.com/jainam240101/zomato-clone/Driver/Handlers"
+	"github.com/jainam240101/zomato-clone/Driver/db"
 	protos "github.com/jainam240101/zomato-clone/Protos/DriverProtos"
 	"google.golang.org/grpc"
 )
 
 func main() {
 	log := hclog.Default()
+	db.ConnectDb()
+	log.Info("database connected")
 	address := "0.0.0.0:8083"
 	lis, err := net.Listen("tcp", address)
 	if err != nil {

@@ -2,8 +2,14 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/jainam240101/zomato-clone/Driver/common"
+	"github.com/jainam240101/zomato-clone/Driver/db"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const key = "drivers"
@@ -20,7 +26,7 @@ func (c *RedisClient) RemoveDriverLocation(id string) {
 	c.ZRem(context.TODO(), key, id)
 }
 
-func (c *RedisClient) SearchDrivers(limit int, lat, lng, r float64) []redis.GeoLocation {
+func (c *RedisClient) SearchDrivers(limit int, lat, lng, r float64, orderId string) ([]byte, error) {
 	/*
 		WITHDIST: Also return the distance of the returned items from    the specified center. The distance is returned in the same unit as the unit specified as the radius argument of the command.
 
@@ -37,5 +43,36 @@ func (c *RedisClient) SearchDrivers(limit int, lat, lng, r float64) []redis.GeoL
 		Count:       limit,
 		Sort:        "ASC",
 	}).Result()
-	return res
+
+	var drivers []common.AvailableDrivers
+
+	for i := 0; i < len(res); i++ {
+		val := c.Get(context.TODO(), res[i].Name)
+		final, _ := val.Result()
+		if final == "" {
+			drivers = append(drivers, common.AvailableDrivers{
+				DriverId: res[i].Name,
+				Distance: res[i].Dist,
+			})
+		}
+	}
+	selectedDriver := common.PingDrivers(drivers)
+	data, err := json.Marshal(selectedDriver)
+	if err != nil {
+		return nil, err
+	}
+
+	id, _ := primitive.ObjectIDFromHex(orderId)
+	result, err := db.OrderDB.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": id},
+		bson.D{
+			{"$set", bson.D{{"driverId", selectedDriver.DriverId}}},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Result is ", result)
+	return data, nil
 }
