@@ -76,3 +76,19 @@ func (c *RedisClient) SearchDrivers(limit int, lat, lng, r float64, orderId stri
 	fmt.Println("Result is ", result)
 	return data, nil
 }
+
+func (c *RedisClient) UpdateOrder(driverId, orderId string) (bool, error) {
+	id, _ := primitive.ObjectIDFromHex(orderId)
+	_, err := db.OrderDB.UpdateOne(
+		context.TODO(),
+		bson.M{"_id": id},
+		bson.D{
+			{"$set", bson.D{{"orderStatus", "Delivered"}}},
+		},
+	)
+	if err != nil {
+		return false, err
+	}
+	c.Del(context.TODO(), driverId)
+	return true, nil
+}

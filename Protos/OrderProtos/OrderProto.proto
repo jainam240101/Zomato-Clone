@@ -32,6 +32,8 @@ message OrderDetails{
     string restaurantId=3;
     float payableAmount=4;
     PaymentMethod paymentMethod=5;
+    float userLatitude=6;
+    float userLongitude=7;
 }
 
 message OrderResponse{
@@ -40,6 +42,7 @@ message OrderResponse{
     string userId=3;
     string orderStatus=4;
     string restaurantId=5;
-    float  payableAmount=6;
-    repeated Order  order=7;
+    repeated Order  order=6;
+    float  billAmount=7;
+    float  deliveryCharge=8;
 }

@@ -22,6 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DriverServiceClient interface {
+	UpdateOrder(ctx context.Context, in *OrderDetails, opts ...grpc.CallOption) (*OrderResponse, error)
+	UpdateDriverLocation(ctx context.Context, in *DriverDetails, opts ...grpc.CallOption) (*DriverResponse, error)
 	AddDriverLocation(ctx context.Context, in *DriverDetails, opts ...grpc.CallOption) (*DriverResponse, error)
 	SearchForDrivers(ctx context.Context, in *DriverSearch, opts ...grpc.CallOption) (*SearchResponse, error)
 }
@@ -32,6 +34,24 @@ type driverServiceClient struct {
 
 func NewDriverServiceClient(cc grpc.ClientConnInterface) DriverServiceClient {
 	return &driverServiceClient{cc}
+}
+
+func (c *driverServiceClient) UpdateOrder(ctx context.Context, in *OrderDetails, opts ...grpc.CallOption) (*OrderResponse, error) {
+	out := new(OrderResponse)
+	err := c.cc.Invoke(ctx, "/DriverService/UpdateOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *driverServiceClient) UpdateDriverLocation(ctx context.Context, in *DriverDetails, opts ...grpc.CallOption) (*DriverResponse, error) {
+	out := new(DriverResponse)
+	err := c.cc.Invoke(ctx, "/DriverService/UpdateDriverLocation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *driverServiceClient) AddDriverLocation(ctx context.Context, in *DriverDetails, opts ...grpc.CallOption) (*DriverResponse, error) {
@@ -56,6 +76,8 @@ func (c *driverServiceClient) SearchForDrivers(ctx context.Context, in *DriverSe
 // All implementations must embed UnimplementedDriverServiceServer
 // for forward compatibility
 type DriverServiceServer interface {
+	UpdateOrder(context.Context, *OrderDetails) (*OrderResponse, error)
+	UpdateDriverLocation(context.Context, *DriverDetails) (*DriverResponse, error)
 	AddDriverLocation(context.Context, *DriverDetails) (*DriverResponse, error)
 	SearchForDrivers(context.Context, *DriverSearch) (*SearchResponse, error)
 	mustEmbedUnimplementedDriverServiceServer()
@@ -65,6 +87,12 @@ type DriverServiceServer interface {
 type UnimplementedDriverServiceServer struct {
 }
 
+func (UnimplementedDriverServiceServer) UpdateOrder(context.Context, *OrderDetails) (*OrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrder not implemented")
+}
+func (UnimplementedDriverServiceServer) UpdateDriverLocation(context.Context, *DriverDetails) (*DriverResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDriverLocation not implemented")
+}
 func (UnimplementedDriverServiceServer) AddDriverLocation(context.Context, *DriverDetails) (*DriverResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddDriverLocation not implemented")
 }
@@ -82,6 +110,42 @@ type UnsafeDriverServiceServer interface {
 
 func RegisterDriverServiceServer(s grpc.ServiceRegistrar, srv DriverServiceServer) {
 	s.RegisterService(&DriverService_ServiceDesc, srv)
+}
+
+func _DriverService_UpdateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderDetails)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DriverServiceServer).UpdateOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/DriverService/UpdateOrder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DriverServiceServer).UpdateOrder(ctx, req.(*OrderDetails))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DriverService_UpdateDriverLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DriverDetails)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DriverServiceServer).UpdateDriverLocation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/DriverService/UpdateDriverLocation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DriverServiceServer).UpdateDriverLocation(ctx, req.(*DriverDetails))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _DriverService_AddDriverLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -127,6 +191,14 @@ var DriverService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "DriverService",
 	HandlerType: (*DriverServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "UpdateOrder",
+			Handler:    _DriverService_UpdateOrder_Handler,
+		},
+		{
+			MethodName: "UpdateDriverLocation",
+			Handler:    _DriverService_UpdateDriverLocation_Handler,
+		},
 		{
 			MethodName: "AddDriverLocation",
 			Handler:    _DriverService_AddDriverLocation_Handler,

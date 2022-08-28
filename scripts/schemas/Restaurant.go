@@ -13,4 +13,6 @@ type RestaurantModel struct {
 	Manager_Name  string             `json:"managerName"`
 	Manager_Phone string             `json:"managerPhone"`
 	Listing_Date  string             `json:"listingDate"`
+	Latitude      float64            `json:"latitude"`
+	Longitude     float64            `json:"longitude"`
 }

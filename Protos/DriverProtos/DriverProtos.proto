@@ -3,8 +3,19 @@ syntax="proto3";
 option go_package="protos/DriverProtos";
 
 service DriverService{
+    rpc UpdateOrder(OrderDetails) returns (OrderResponse); 
+    rpc UpdateDriverLocation(DriverDetails) returns (DriverResponse); 
     rpc AddDriverLocation(DriverDetails) returns (DriverResponse); 
     rpc SearchForDrivers(DriverSearch) returns (SearchResponse);
+}
+
+message OrderDetails{
+    string driverId=1; 
+    string orderId=2; 
+}
+
+message OrderResponse{
+    string message=1;
 }
 
 message DriverDetails{
@@ -28,3 +39,4 @@ message DriverSearch{
 message SearchResponse{
     bytes driverLocations=1;
 }
+

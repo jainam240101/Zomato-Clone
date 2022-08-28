@@ -35,3 +35,18 @@ func (s *Server) AddDriverLocation(ctx context.Context, request *protos.DriverDe
 	s.redis.AddDriverLocation(float64(request.Longitude), float64(request.Latitude), request.DriverId)
 	return &protos.DriverResponse{}, nil
 }
+
+func (s *Server) UpdateDriverLocation(ctx context.Context, request *protos.DriverDetails) (*protos.DriverResponse, error) {
+	s.Log.Info("Tracking")
+	s.redis.AddDriverLocation(float64(request.Longitude), float64(request.Latitude), request.DriverId)
+	return &protos.DriverResponse{}, nil
+}
+
+func (s *Server) UpdateOrder(ctx context.Context, request *protos.OrderDetails) (*protos.OrderResponse, error) {
+	s.Log.Info("Updating an order")
+	_, err := s.redis.UpdateOrder(request.DriverId, request.OrderId)
+	if err != nil {
+		return nil, err
+	}
+	return &protos.OrderResponse{Message: "Done"}, nil
+}

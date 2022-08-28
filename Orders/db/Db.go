@@ -10,6 +10,7 @@ import (
 )
 
 var OrderDB *mongo.Collection
+var RestaurantDB *mongo.Collection
 
 func ConnectDb() {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://localhost:27017"))
@@ -20,4 +21,5 @@ func ConnectDb() {
 		log.Fatal("Some error occured ", err)
 	}
 	OrderDB = client.Database("Zomato-Clone").Collection("Orders")
+	RestaurantDB = client.Database("Zomato-Clone").Collection("restaurants")
 }

@@ -24,10 +24,12 @@ func main() {
 
 	orderRequest := &protos.OrderDetails{
 		UserId:        "0517cc14-9918-4230-a4f1-3670683e3431",
-		RestaurantId:  "173584e9-5a0a-479d-a55d-30ba949f424f",
+		RestaurantId:  "630b248769fbbb44c75f271d",
 		PayableAmount: 2578.34,
 		PaymentMethod: protos.PaymentMethod_CARD,
 		Order:         items,
+		UserLatitude: -3.496589660644531,
+		UserLongitude: -62.961456298828125,
 	}
 
 	orderResp, _ := client.CreateOrder(context.Background(), orderRequest)

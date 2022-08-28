@@ -34,9 +34,10 @@ func main() {
 	fmt.Println("Server is listening on ", address)
 	s := grpc.NewServer()
 	server := &handlers.Server{
-		Log:    log,
-		Restro: *restoConn,
-		DB:     db.OrderDB,
+		Log:      log,
+		Restro:   *restoConn,
+		DB:       db.OrderDB,
+		RestroDB: db.RestaurantDB,
 	}
 	orderProtos.RegisterOrderServiceServer(s, server)
 	s.Serve(lis)

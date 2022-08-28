@@ -53,6 +53,8 @@ func GenerateRestaurants(DB *mongo.Database) {
 			ID:            primitive.NewObjectID(),
 			Name:          faker.FirstName() + " " + faker.LastName(),
 			Email:         faker.Email(),
+			Latitude:      faker.Latitude(),
+			Longitude:     faker.Latitude(),
 			Password:      hashedPassword,
 			PhoneNumber:   faker.Phonenumber(),
 			Manager_Name:  faker.FirstName() + " " + faker.LastName(),
@@ -107,7 +109,7 @@ func main() {
 
 	DB := ConnectDb()
 
-	GenerateUsers(DB)
+	// GenerateUsers(DB)
 	GenerateRestaurants(DB)
-	GenerateDrivers(DB)
+	// GenerateDrivers(DB)
 }
