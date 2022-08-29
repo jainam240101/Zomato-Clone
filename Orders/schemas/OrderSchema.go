@@ -9,6 +9,7 @@ type OrderStruct struct {
 	ID             primitive.ObjectID   `bson:"_id"`
 	UserId         string               `bson:"userId"`
 	RestaurantId   string               `bson:"restaurantId"`
+	PaymentStatus  string               `bson:"paymentStatus"`
 	OrderStatus    string               `bson:"orderStatus"`
 	BillAmount     float64              `bson:"billAmount"`
 	DeliveryCharge float64              `bson:"deliveryCharge"`

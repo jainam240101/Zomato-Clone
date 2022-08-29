@@ -42,8 +42,9 @@ func (s *Server) CreateOrder(ctx context.Context, request *protos.OrderDetails) 
 		UserId:         request.UserId,
 		RestaurantId:   request.RestaurantId,
 		BillAmount:     float64(request.PayableAmount),
-		DeliveryCharge: float64(distance * 1.5),
+		DeliveryCharge: float64(distance*1.5) + 15,
 		PaymentMethod:  request.PaymentMethod.String(),
+		PaymentStatus:  "Pending",
 		OrderStatus:    "Pending",
 		Order:          request.Order,
 	}
@@ -54,13 +55,16 @@ func (s *Server) CreateOrder(ctx context.Context, request *protos.OrderDetails) 
 	}
 
 	orderResponse := &protos.OrderResponse{
-		OrderId:       val.InsertedID.(primitive.ObjectID).String(),
-		PaymentMethod: request.PaymentMethod.String(),
-		UserId:        request.UserId,
-		OrderStatus:   "Pending",
-		RestaurantId:  request.RestaurantId,
-		BillAmount:    request.PayableAmount,
-		Order:         request.Order,
+		OrderId:             val.InsertedID.(primitive.ObjectID).String(),
+		PaymentMethod:       request.PaymentMethod.String(),
+		UserId:              request.UserId,
+		PaymentStatus:       "Pending",
+		OrderStatus:         "Pending",
+		RestaurantId:        request.RestaurantId,
+		BillAmount:          request.PayableAmount,
+		Order:               request.Order,
+		RestaurantLatitude:  float32(restro.Latitude),
+		RestaurantLongitude: float32(restro.Longitude),
 	}
 
 	s.Log.Info("Sending Orders to restro")
@@ -93,6 +97,7 @@ func (s *Server) FindOrder(ctx context.Context, request *protos.OrderID) (*proto
 		OrderId:        request.OrderId,
 		PaymentMethod:  order.PaymentMethod,
 		UserId:         order.UserId,
+		PaymentStatus:  order.PaymentStatus,
 		OrderStatus:    order.OrderStatus,
 		RestaurantId:   order.RestaurantId,
 		BillAmount:     float32(order.BillAmount),

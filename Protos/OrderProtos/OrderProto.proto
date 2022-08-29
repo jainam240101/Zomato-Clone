@@ -40,9 +40,12 @@ message OrderResponse{
     string OrderId=1;   
     string paymentMethod=2;
     string userId=3;
-    string orderStatus=4;
-    string restaurantId=5;
-    repeated Order  order=6;
-    float  billAmount=7;
-    float  deliveryCharge=8;
+    string paymentStatus=4;
+    string orderStatus=5;
+    string restaurantId=6;
+    repeated Order  order=7;
+    float  billAmount=8;
+    float  deliveryCharge=9;
+    float restaurantLatitude=10;
+    float restaurantLongitude=11;
 }
