@@ -46,7 +46,7 @@ func GenerateUsers(DB *mongo.Database) {
 }
 
 func GenerateRestaurants(DB *mongo.Database) {
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 5; i++ {
 		hashedPassword, _ := HashPassword(faker.Password())
 
 		restro := schemas.RestaurantModel{

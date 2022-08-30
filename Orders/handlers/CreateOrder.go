@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/jainam240101/zomato-clone/Orders/schemas"
@@ -34,8 +35,11 @@ func (s *Server) CreateOrder(ctx context.Context, request *protos.OrderDetails) 
 	s.RestroDB.FindOne(context.TODO(), bson.M{"_id": restroobjectId}).Decode(&restro)
 
 	distance := utils.Distance(float64(request.UserLatitude), float64(request.UserLongitude), restro.Latitude, restro.Longitude, "Kilometer")
-
 	s.Log.Info("Distance ", distance)
+
+	if distance > 50 {
+		return nil, errors.New("Not Delivering in that Location")
+	}
 
 	OrderDetails := schemas.OrderStruct{
 		ID:             primitive.NewObjectID(),
@@ -61,6 +65,7 @@ func (s *Server) CreateOrder(ctx context.Context, request *protos.OrderDetails) 
 		PaymentStatus:       "Pending",
 		OrderStatus:         "Pending",
 		RestaurantId:        request.RestaurantId,
+		DeliveryCharge:      float32(distance*1.5) + 15,
 		BillAmount:          request.PayableAmount,
 		Order:               request.Order,
 		RestaurantLatitude:  float32(restro.Latitude),
