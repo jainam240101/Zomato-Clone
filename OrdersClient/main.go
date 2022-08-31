@@ -127,10 +127,17 @@ func main() {
 		Latitude:  -33.44262, //Restaurant Location
 		Longitude: -70.63054, //Restaurant Location
 		Limit:     5,
-		OrderId:   "62f7732c66188fd414fd8403",
+		OrderId:   orderResp.OrderId,
 	})
-
 	fmt.Println("Driver Details ", driverData)
+
+	// data, _ := driverClient.UpdateOrder(context.Background(), &protos.OrderDetails{
+	// 	DriverId: "4",
+	// 	OrderId:   orderResp.OrderId,
+	// })
+	// log.Info("Data ", data)
+
+	// fmt.Println("Driver Details ", driverData)
 }
 
 func GetItems() []*protos.Order {
