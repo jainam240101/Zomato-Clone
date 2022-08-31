@@ -109,7 +109,7 @@ func main() {
 
 	DB := ConnectDb()
 
-	// GenerateUsers(DB)
+	GenerateUsers(DB)
 	GenerateRestaurants(DB)
-	// GenerateDrivers(DB)
+	GenerateDrivers(DB)
 }

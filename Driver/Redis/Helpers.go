@@ -74,6 +74,10 @@ func (c *RedisClient) SearchDrivers(limit int, lat, lng, r float64, orderId stri
 		return nil, err
 	}
 	fmt.Println("Result is ", result)
+	err = c.Set(context.TODO(), selectedDriver.DriverId, "busy", 0).Err()
+	if err != nil {
+		panic(err)
+	}
 	return data, nil
 }
 

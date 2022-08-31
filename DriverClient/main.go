@@ -41,15 +41,16 @@ func main() {
 	// })
 
 	// data, _ := client.SearchForDrivers(context.Background(), &protos.DriverSearch{
-	// 	Latitude:  -33.44262,
-	// 	Longitude: -70.63054,
+	// 	Latitude:  -33.44262, //Restaurant Location
+	// 	Longitude: -70.63054, //Restaurant Location
 	// 	Limit:     5,
-	// 	OrderId:   "62f7732c66188fd414fd8403",
+	// 	OrderId:   "630e14e3256c9a6699f93f69",
 	// })
+	// log.Info("Nearby Driver is ", data)
 
-	data,_:=client.UpdateOrder(context.Background(),&protos.OrderDetails{
-		DriverId: "1",
-		OrderId: "62f7732c66188fd414fd8403",
+	data, _ := client.UpdateOrder(context.Background(), &protos.OrderDetails{
+		DriverId: "4",
+		OrderId:  "630e138f256c9a6699f93f68",
 	})
 	log.Info("Data ", data)
 }

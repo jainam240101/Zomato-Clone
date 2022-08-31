@@ -37,6 +37,7 @@ func toFixed(num float64, precision int) float64 {
 }
 
 func main() {
+	// Default Code
 	db.ConnectDb()
 	opts := grpc.WithInsecure()
 	log := hclog.Default()
@@ -59,23 +60,28 @@ func main() {
 
 	items := GetItems()
 
+	// Ending Default Code
+
 	orderRequest := &protos.OrderDetails{
 		UserId:        "0517cc14-9918-4230-a4f1-3670683e3431",
 		RestaurantId:  "630b248769fbbb44c75f271d",
 		PayableAmount: 2578.34,
 		PaymentMethod: protos.PaymentMethod_CARD,
 		Order:         items,
-		UserLatitude:  23.0301728,
-		UserLongitude: 72.4859199,
+		UserLatitude:  23.0301728, //Users Location (Ours)
+		UserLongitude: 72.4859199, //Users Location (Ours)
 	}
 
+	// Calling Create Order (GRPC)
 	orderResp, err := client.CreateOrder(context.Background(), orderRequest)
 	if err != nil {
 		fmt.Println("error ", err)
 	}
 	total := toFixed(float64(orderResp.DeliveryCharge), 2) + toFixed(float64(orderRequest.PayableAmount), 2)
 	fmt.Println("Order id ", orderResp.OrderId)
+	// Calling Create Order (GRPC)
 
+	// Payment
 	posturl := "http://localhost:4000/payment/create"
 	body := Body{
 		Amount:      total,
@@ -114,14 +120,16 @@ func main() {
 	}
 
 	fmt.Println("Stripe Payment ID ", post.Id)
-	
+
+	// Ending Payment
+
 	driverData, _ := driverClient.SearchForDrivers(context.Background(), &driverProtos.DriverSearch{
-		Latitude:  -33.44262,
-		Longitude: -70.63054,
+		Latitude:  -33.44262, //Restaurant Location
+		Longitude: -70.63054, //Restaurant Location
 		Limit:     5,
 		OrderId:   "62f7732c66188fd414fd8403",
 	})
-	
+
 	fmt.Println("Driver Details ", driverData)
 }
 
