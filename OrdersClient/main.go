@@ -82,6 +82,47 @@ func main() {
 	// Calling Create Order (GRPC)
 
 	// Payment
+	paymentId := CreatePayment(total, orderResp)
+	fmt.Println("Stripe Payment ID ", paymentId)
+
+	// Ending Payment
+
+	driverData, _ := driverClient.SearchForDrivers(context.Background(), &driverProtos.DriverSearch{
+		Latitude:  -33.44262, //Restaurant Location
+		Longitude: -70.63054, //Restaurant Location
+		Limit:     5,
+		OrderId:   orderResp.OrderId,
+	})
+	fmt.Println("Driver Details ", driverData)
+
+	// data, _ := driverClient.UpdateOrder(context.Background(), &protos.OrderDetails{
+	// 	DriverId: "4",
+	// 	OrderId:   orderResp.OrderId,
+	// })
+	// log.Info("Data ", data)
+
+	// fmt.Println("Driver Details ", driverData)
+}
+
+func GetItems() []*protos.Order {
+	items := []*protos.Order{}
+	items = append(items, CreateStruct("Paneer Butter Masala", 2, 250.13, "abcv"))
+	items = append(items, CreateStruct("Dal Makhni", 3, 350.13, "1234xabcv"))
+	items = append(items, CreateStruct("Lasagna", 1, 550, "9871xuqhud"))
+	items = append(items, CreateStruct("Mohito", 2, 150, "144211xuqhud"))
+	return items
+}
+
+func CreateStruct(DishName string, Quantity int32, Price float32, DishId string) *protos.Order {
+	return &protos.Order{
+		DishName: DishName,
+		Quantity: Quantity,
+		Price:    Price,
+		DishId:   DishId,
+	}
+}
+
+func CreatePayment(total float64, orderResp *protos.OrderResponse) string {
 	posturl := "http://localhost:4000/payment/create"
 	body := Body{
 		Amount:      total,
@@ -119,41 +160,5 @@ func main() {
 		panic(res.Status)
 	}
 
-	fmt.Println("Stripe Payment ID ", post.Id)
-
-	// Ending Payment
-
-	driverData, _ := driverClient.SearchForDrivers(context.Background(), &driverProtos.DriverSearch{
-		Latitude:  -33.44262, //Restaurant Location
-		Longitude: -70.63054, //Restaurant Location
-		Limit:     5,
-		OrderId:   orderResp.OrderId,
-	})
-	fmt.Println("Driver Details ", driverData)
-
-	// data, _ := driverClient.UpdateOrder(context.Background(), &protos.OrderDetails{
-	// 	DriverId: "4",
-	// 	OrderId:   orderResp.OrderId,
-	// })
-	// log.Info("Data ", data)
-
-	// fmt.Println("Driver Details ", driverData)
-}
-
-func GetItems() []*protos.Order {
-	items := []*protos.Order{}
-	items = append(items, CreateStruct("Paneer Butter Masala", 2, 250.13, "abcv"))
-	items = append(items, CreateStruct("Dal Makhni", 3, 350.13, "1234xabcv"))
-	items = append(items, CreateStruct("Lasagna", 1, 550, "9871xuqhud"))
-	items = append(items, CreateStruct("Mohito", 2, 150, "144211xuqhud"))
-	return items
-}
-
-func CreateStruct(DishName string, Quantity int32, Price float32, DishId string) *protos.Order {
-	return &protos.Order{
-		DishName: DishName,
-		Quantity: Quantity,
-		Price:    Price,
-		DishId:   DishId,
-	}
+	return post.Id
 }
